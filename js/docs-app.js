@@ -501,6 +501,11 @@ function initCopyForAI() {
       if (action === 'copy-page') {
         await navigator.clipboard.writeText(md);
         showToast('Copied to clipboard');
+      } else if (action === 'view-markdown') {
+        const entry = DOC_MAP[docKey];
+        const filePath = entry.file[currentLang] || entry.file.en;
+        window.open(filePath, '_blank');
+        return;
       } else if (action === 'open-chatgpt') {
         const text = encodeURIComponent(md.slice(0, 8000));
         window.open('https://chatgpt.com/?q=' + text, '_blank');
