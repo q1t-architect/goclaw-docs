@@ -21,6 +21,8 @@ Lần đăng nhập đầu tiên, dashboard tự động chuyển đến **Setup
 2. **Tạo agent đầu tiên** — đặt tên, system prompt, và chọn provider/model ở trên.
 3. **Kết nối channel** (tuỳ chọn) — liên kết Telegram, Discord, WhatsApp, Zalo, Larksuite, hoặc Slack.
 
+> **Mẹo:** Bạn có thể nhấn **"Skip setup and go to dashboard"** ở đầu wizard để bỏ qua toàn bộ và cấu hình thủ công sau. Bước Channel (bước 3) cũng có nút **Skip** nếu bạn chưa cần kết nối Telegram/Discord/etc. — có thể thêm channel sau bất cứ lúc nào.
+
 Sau khi hoàn tất wizard, bạn đã sẵn sàng chat.
 
 ## Bước 2: Thêm Provider Khác (Tuỳ chọn)

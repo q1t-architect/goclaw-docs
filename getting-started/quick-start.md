@@ -19,6 +19,8 @@ On first login, the dashboard automatically navigates to the **Setup Wizard**. T
 2. **Create your first agent** — give it a name, system prompt, and select the provider/model from above.
 3. **Connect a channel** (optional) — link Telegram, Discord, WhatsApp, Zalo, Larksuite, or Slack.
 
+> **Tip:** You can click **"Skip setup and go to dashboard"** at the top of the wizard to skip it entirely and configure everything manually later. The Channel step (step 3) also has a **Skip** button if you don't need Telegram/Discord/etc. yet — you can always add channels later.
+
 After completing the wizard, you're ready to chat.
 
 ## Step 2: Add More Providers (Optional)
