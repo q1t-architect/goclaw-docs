@@ -6,7 +6,7 @@
 
 Extended thinking lets a supported LLM reason through a problem before producing its final reply. The model generates internal reasoning tokens that are not part of the visible response but improve the quality of complex analysis, multi-step planning, and decision-making.
 
-GoClaw supports extended thinking across three provider families — Anthropic, OpenAI-compatible, and DashScope (Alibaba Qwen) — through a single unified `thinking_level` setting per agent.
+GoClaw supports extended thinking across four provider families — Anthropic, OpenAI-compatible, DashScope (Alibaba Qwen), and Codex (Alibaba AI Reasoning) — through a single unified `thinking_level` setting per agent.
 
 ---
 
@@ -104,6 +104,7 @@ flowchart TD
 | Anthropic | `thinking_delta` in content blocks | `text_delta` in content blocks |
 | OpenAI-compat | `reasoning_content` in delta | `content` in delta |
 | DashScope | No streaming with tools (falls back to non-streaming) | Same |
+| Codex | `OutputTokensDetails.ReasoningTokens` tracked | Standard content |
 
 Thinking tokens are estimated as `character_count / 4` for context window tracking.
 

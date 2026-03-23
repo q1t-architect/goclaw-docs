@@ -8,7 +8,7 @@
 
 Extended thinking cho phép LLM được hỗ trợ suy luận qua một vấn đề trước khi tạo ra câu trả lời cuối cùng. Model tạo ra các token suy luận nội bộ không phải là một phần của phản hồi hiển thị nhưng cải thiện chất lượng phân tích phức tạp, lập kế hoạch nhiều bước, và ra quyết định.
 
-GoClaw hỗ trợ extended thinking trên ba họ provider — Anthropic, OpenAI-compatible, và DashScope (Alibaba Qwen) — thông qua một cài đặt `thinking_level` thống nhất mỗi agent.
+GoClaw hỗ trợ extended thinking trên bốn họ provider — Anthropic, OpenAI-compatible, DashScope (Alibaba Qwen), và Codex (Alibaba AI Reasoning) — thông qua một cài đặt `thinking_level` thống nhất mỗi agent.
 
 ---
 
@@ -106,6 +106,7 @@ flowchart TD
 | Anthropic | `thinking_delta` trong content blocks | `text_delta` trong content blocks |
 | OpenAI-compat | `reasoning_content` trong delta | `content` trong delta |
 | DashScope | Không stream với tools (fallback sang non-streaming) | Như vậy |
+| Codex | `OutputTokensDetails.ReasoningTokens` được theo dõi | Content tiêu chuẩn |
 
 Token thinking được ước tính là `character_count / 4` để theo dõi context window.
 

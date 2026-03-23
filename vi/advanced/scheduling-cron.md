@@ -59,7 +59,7 @@ GoClaw sử dụng WebSocket RPC. Gửi method call `cron.create`:
 
 ### Qua tool `cron` tích hợp sẵn (job do agent tạo)
 
-Agent có thể tự lên lịch các task theo dõi trong quá trình hội thoại bằng tool `cron` với `action: "add"`:
+Agent có thể tự lên lịch các task theo dõi trong quá trình hội thoại bằng tool `cron` với `action: "add"`. GoClaw tự động loại bỏ thụt đầu dòng tab trong trường `description` và kiểm tra tham số để ngăn tạo job sai định dạng.
 
 ```json
 {

@@ -72,6 +72,7 @@ The agent receives your checklist in its system prompt with explicit instruction
 | `timezone` | string | — | IANA timezone for active hours (default: UTC) |
 | `channel` | string | — | Delivery channel: `telegram`, `discord`, `feishu` |
 | `chat_id` | string | — | Target chat or group ID |
+| `ack_max_chars` | int | — | Reserved for future threshold logic (not yet active) |
 
 ## Scheduling & Wake Modes
 

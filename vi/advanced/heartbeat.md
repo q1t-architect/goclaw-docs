@@ -74,6 +74,7 @@ Agent nhận danh sách kiểm tra trong system prompt với hướng dẫn rõ 
 | `timezone` | string | — | Timezone IANA cho active hours (mặc định: UTC) |
 | `channel` | string | — | Delivery channel: `telegram`, `discord`, `feishu` |
 | `chat_id` | string | — | ID chat hoặc group đích |
+| `ack_max_chars` | int | — | Dành cho logic ngưỡng trong tương lai (chưa hoạt động) |
 
 ## Lên lịch và Wake Mode
 

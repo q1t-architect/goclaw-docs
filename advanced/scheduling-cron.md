@@ -57,7 +57,7 @@ GoClaw uses WebSocket RPC. Send a `cron.create` method call:
 
 ### Via the `cron` built-in tool (agent-created jobs)
 
-Agents can schedule their own follow-up tasks during a conversation using the `cron` tool with `action: "add"`:
+Agents can schedule their own follow-up tasks during a conversation using the `cron` tool with `action: "add"`. GoClaw automatically strips leading tab indentation from the `description` field and validates parameters to prevent malformed job creation.
 
 ```json
 {
