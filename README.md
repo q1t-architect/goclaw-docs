@@ -103,6 +103,8 @@
 - [Channel Instances](advanced/channel-instances.md)
 - [Usage & Quota](advanced/usage-quota.md)
 - [Cost Tracking](advanced/cost-tracking.md)
+- [Model Steering](advanced/model-steering.md)
+- [Agent Evolution](advanced/agent-evolution.md)
 
 ## Deployment
 

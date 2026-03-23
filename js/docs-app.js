@@ -139,6 +139,8 @@ const DOC_MAP = {
   'channel-instances': docEntry('advanced', 'channel-instances', 'Channel Instances', 'Channel Instances'),
   'usage-quota': docEntry('advanced', 'usage-quota', 'Usage & Quota', 'Sử dụng & Hạn mức'),
   'cost-tracking': docEntry('advanced', 'cost-tracking', 'Cost Tracking', 'Theo dõi chi phí'),
+  'model-steering': docEntry('advanced', 'model-steering', 'Model Steering', 'Điều hướng mô hình'),
+  'agent-evolution': docEntry('advanced', 'agent-evolution', 'Agent Evolution', 'Tiến hóa Agent'),
 
   // Deployment
   'deploy-docker-compose': docEntry('deployment', 'docker-compose', 'Docker Compose', 'Docker Compose'),
