@@ -2,8 +2,11 @@ name: Upstream Sync
 
 on:
   schedule:
-    - cron: "0 * * * *"  # every hour
+    - cron: "0 * * * *"
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   sync:
@@ -12,23 +15,36 @@ jobs:
       - name: Checkout fork
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GH_PAT }}
+          ref: custom
           fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
 
-      - name: Fetch upstream and fast-forward
+      - name: Configure git
         run: |
-          git remote add upstream https://github.com/nextlevelbuilder/goclaw-docs.git
-          git fetch upstream master
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          LOCAL=$(git rev-parse HEAD)
-          UPSTREAM=$(git rev-parse upstream/master)
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/nextlevelbuilder/goclaw-docs.git || true
+          git fetch upstream
+          git fetch origin master
 
-          if [ "$LOCAL" = "$UPSTREAM" ]; then
-            echo "Already up to date."
-            exit 0
-          fi
-
-          # Fast-forward only — no merge commits
+      - name: Update master branch
+        run: |
+          git checkout -B master origin/master
           git merge --ff-only upstream/master
           git push origin master
-          echo "Synced to $UPSTREAM"
+
+      - name: Merge master into custom
+        run: |
+          git checkout custom
+          BEFORE=$(git rev-parse HEAD)
+          git merge origin/master --no-edit
+          AFTER=$(git rev-parse HEAD)
+          if [ "$BEFORE" != "$AFTER" ]; then
+            git push origin custom
+            echo "Synced to $(git rev-parse --short upstream/master)"
+          else
+            echo "Already up to date."
+          fi
