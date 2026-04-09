@@ -2,37 +2,28 @@
 
 # Channel WhatsApp
 
-Tích hợp WhatsApp qua WebSocket bridge bên ngoài. GoClaw kết nối với dịch vụ bridge (ví dụ: whatsapp-web.js) để xử lý giao thức WhatsApp.
+Tích hợp WhatsApp trực tiếp. GoClaw kết nối trực tiếp đến giao thức multi-device của WhatsApp — không cần bridge hay dịch vụ Node.js bên ngoài. Trạng thái xác thực được lưu trong database (PostgreSQL hoặc SQLite).
 
 ## Thiết lập
 
-**Yêu cầu:**
-- Dịch vụ WhatsApp bridge đang chạy (ví dụ: whatsapp-web.js)
-- URL bridge có thể truy cập từ GoClaw
+1. **Channels > Add Channel > WhatsApp**
+2. Chọn agent, bấm **Create & Scan QR**
+3. Quét QR bằng WhatsApp (Bạn > Thiết bị liên kết > Liên kết thiết bị)
+4. Cấu hình chính sách DM/nhóm theo nhu cầu
 
-**Khởi động WhatsApp Bridge:**
+Vậy là xong — không cần triển khai bridge, không cần container phụ.
 
-Ví dụ dùng whatsapp-web.js:
+### Cấu hình qua file config
 
-```bash
-npm install -g whatsapp-web.js
-# Khởi động bridge server trên localhost:3001
-whatsapp-bridge --port 3001
-```
-
-Bridge của bạn cần expose một WebSocket endpoint (ví dụ: `ws://localhost:3001`).
-
-**Bật WhatsApp:**
+Cho channel cấu hình qua file (thay vì DB instance):
 
 ```json
 {
   "channels": {
     "whatsapp": {
       "enabled": true,
-      "bridge_url": "ws://localhost:3001",
-      "dm_policy": "open",
-      "group_policy": "open",
-      "allow_from": []
+      "dm_policy": "pairing",
+      "group_policy": "pairing"
     }
   }
 }
@@ -40,104 +31,135 @@ Bridge của bạn cần expose một WebSocket endpoint (ví dụ: `ws://localh
 
 ## Cấu hình
 
-Tất cả config key nằm trong `channels.whatsapp`:
+Tất cả config key nằm trong `channels.whatsapp` (file config) hoặc config JSON của instance (DB):
 
 | Key | Kiểu | Mặc định | Mô tả |
-|-----|------|---------|-------------|
-| `enabled` | bool | false | Bật/tắt channel |
-| `bridge_url` | string | bắt buộc | URL WebSocket đến bridge (ví dụ: `ws://bridge:3001`) |
+|-----|------|---------|-------|
+| `enabled` | bool | `false` | Bật/tắt channel |
 | `allow_from` | list | -- | Danh sách trắng user/group ID |
-| `dm_policy` | string | `"open"` | `open`, `allowlist`, `pairing`, `disabled` |
-| `group_policy` | string | `"open"` | `open`, `allowlist`, `disabled` |
+| `dm_policy` | string | `"pairing"` | `pairing`, `open`, `allowlist`, `disabled` |
+| `group_policy` | string | `"pairing"` (DB) / `"open"` (config) | `pairing`, `open`, `allowlist`, `disabled` |
+| `require_mention` | bool | `false` | Chỉ trả lời trong nhóm khi bot được @mention |
+| `history_limit` | int | `200` | Số tin nhắn nhóm tối đa cho ngữ cảnh (0=tắt) |
 | `block_reply` | bool | -- | Ghi đè block_reply của gateway (nil=kế thừa) |
 
-## Tính năng
-
-### Kết nối Bridge
-
-GoClaw kết nối với bridge qua WebSocket và gửi/nhận JSON message.
+## Kiến trúc
 
 ```mermaid
 flowchart LR
-    GC["GoClaw"]
-    WS["WebSocket<br/>Connection"]
-    BRIDGE["WhatsApp<br/>Bridge"]
     WA["WhatsApp<br/>Servers"]
+    GC["GoClaw"]
+    UI["Web UI<br/>(QR Wizard)"]
 
-    GC -->|"JSON messages"| WS
-    WS -->|"JSON messages"| BRIDGE
-    BRIDGE -->|"WhatsApp protocol"| WA
-    WA -->|"Protocol"| BRIDGE
-    BRIDGE -->|"JSON events"| WS
-    WS -->|"Events"| GC
+    WA <-->|"Giao thức multi-device"| GC
+    GC -->|"QR event qua WS"| UI
 ```
 
-### Hỗ trợ DM và Nhóm
+- **GoClaw** kết nối trực tiếp đến WhatsApp server qua giao thức multi-device
+- Trạng thái xác thực lưu trong database — tồn tại qua khởi động lại
+- Một channel instance = một số điện thoại WhatsApp
+- Không bridge, không Node.js, không shared volume
 
-Bridge phát hiện group chat qua hậu tố `@g.us` trong chat ID:
+## Tính năng
 
-- **DM**: `"1234567890@c.us"`
-- **Nhóm**: `"123-456@g.us"`
+### Xác thực QR Code
 
-Chính sách được áp dụng tương ứng (chính sách DM cho DM, chính sách nhóm cho nhóm).
+WhatsApp yêu cầu quét QR để liên kết thiết bị. Quy trình:
 
-Trong chat nhóm, tin nhắn bao gồm chú thích `[From:]` với tên hiển thị của người gửi, giúp agent phân biệt giữa các thành viên.
+1. GoClaw tạo mã QR để liên kết thiết bị
+2. Chuỗi QR được mã hóa thành PNG (base64) và gửi đến UI wizard qua WS event
+3. Web UI hiển thị ảnh QR
+4. Người dùng quét bằng WhatsApp (Bạn > Thiết bị liên kết > Liên kết thiết bị)
+5. Xác thực được xác nhận qua sự kiện kết nối
+
+**Xác thực lại**: Dùng nút "Re-authenticate" trong bảng channels để buộc quét QR mới (đăng xuất phiên WhatsApp hiện tại và xóa thông tin thiết bị đã lưu).
+
+### Chính sách DM và Nhóm
+
+Nhóm WhatsApp có chat ID kết thúc bằng `@g.us`:
+
+- **DM**: `"1234567890@s.whatsapp.net"`
+- **Nhóm**: `"120363012345@g.us"`
+
+Các chính sách có sẵn:
+
+| Chính sách | Hành vi |
+|-----------|---------|
+| `open` | Chấp nhận tất cả tin nhắn |
+| `pairing` | Yêu cầu phê duyệt mã pairing (mặc định cho DB instance) |
+| `allowlist` | Chỉ user trong `allow_from` |
+| `disabled` | Từ chối tất cả tin nhắn |
+
+Chính sách `pairing` cho nhóm: nhóm chưa ghép nối nhận mã pairing. Phê duyệt qua `goclaw pairing approve <CODE>`.
+
+### @Mention Gating
+
+Khi `require_mention` là `true`, bot chỉ trả lời trong nhóm khi được @mention trực tiếp. Tin nhắn không mention được ghi lại cho ngữ cảnh — khi bot được mention, lịch sử nhóm gần đây được thêm vào đầu tin nhắn.
+
+Fail-closed — nếu JID của bot chưa xác định, tin nhắn sẽ bị bỏ qua.
+
+### Hỗ trợ Media
+
+GoClaw tải media đến trực tiếp (ảnh, video, audio, tài liệu, sticker) vào file tạm, sau đó chuyển vào pipeline agent.
+
+Loại media đến được hỗ trợ: image, video, audio, document, sticker (tối đa 20 MB mỗi file).
+
+Media đi: GoClaw upload file lên server WhatsApp với mã hóa phù hợp. Hỗ trợ image, video, audio và document kèm caption.
 
 ### Định dạng tin nhắn
 
-Tin nhắn là JSON object:
+Output LLM được chuyển đổi từ Markdown sang định dạng native của WhatsApp:
 
-```json
-{
-  "from": "1234567890@c.us",
-  "body": "Hello!",
-  "type": "chat",
-  "id": "message_id_123"
-}
-```
+| Markdown | WhatsApp | Hiển thị |
+|----------|----------|---------|
+| `**bold**` | `*bold*` | **bold** |
+| `_italic_` | `_italic_` | _italic_ |
+| `~~strikethrough~~` | `~strikethrough~` | ~~strikethrough~~ |
+| `` `inline code` `` | `` `inline code` `` | `code` |
+| `# Header` | `*Header*` | **Header** |
+| `[text](url)` | `text url` | text url |
+| `- list item` | `• list item` | • list item |
 
-Media được truyền dạng mảng đường dẫn file:
+Fenced code block được giữ nguyên dạng ` ``` `. Tag HTML từ output LLM được tiền xử lý thành Markdown trước khi chuyển đổi. Tin nhắn dài tự động được chia nhỏ tại ~4096 ký tự, tách ở ranh giới đoạn hoặc dòng.
 
-```json
-{
-  "from": "1234567890@c.us",
-  "body": "Photo",
-  "media": ["/tmp/photo.jpg"],
-  "type": "image"
-}
-```
+### Chỉ báo đang nhập
 
-### Tự động Kết nối lại
+GoClaw hiển thị "đang nhập..." trong WhatsApp khi agent xử lý tin nhắn. WhatsApp xóa chỉ báo sau ~10 giây, nên GoClaw làm mới mỗi 8 giây cho đến khi gửi trả lời.
 
-Nếu kết nối bridge bị đứt:
-- Exponential backoff: 1s → tối đa 30s
-- Thử kết nối lại liên tục
-- Log cảnh báo khi kết nối lại thất bại
+### Tự động kết nối lại
 
-## Pattern phổ biến
+Tự động kết nối lại khi kết nối bị đứt:
+- Logic reconnect tích hợp xử lý retry với exponential backoff
+- Trạng thái sức khỏe channel được cập nhật (degraded → healthy khi kết nối lại)
+- Không cần vòng lặp reconnect thủ công
 
-### Gửi đến Chat
+### Địa chỉ LID
 
-```go
-manager.SendToChannel(ctx, "whatsapp", "1234567890@c.us", "Hello!")
-```
-
-### Kiểm tra xem Chat có phải Nhóm không
-
-```go
-isGroup := strings.HasSuffix(chatID, "@g.us")
-```
+WhatsApp dùng định danh kép: phone JID (`@s.whatsapp.net`) và LID (`@lid`). Nhóm có thể dùng địa chỉ LID. GoClaw chuẩn hóa về phone JID để kiểm tra chính sách, tra cứu pairing và allowlist nhất quán.
 
 ## Xử lý sự cố
 
 | Vấn đề | Giải pháp |
-|-------|----------|
-| "Connection refused" | Xác minh bridge đang chạy. Kiểm tra `bridge_url` đúng và có thể truy cập. |
-| "WebSocket: close normal closure" | Bridge tắt graceful. Khởi động lại dịch vụ bridge. |
-| Liên tục thử kết nối lại | Bridge bị down hoặc không thể truy cập. Kiểm tra log bridge. |
-| Không nhận được tin nhắn | Xác minh bridge đang nhận WhatsApp event. Kiểm tra log bridge. |
-| Phát hiện nhóm thất bại | Đảm bảo chat ID kết thúc bằng `@g.us` cho nhóm, `@c.us` cho DM. |
-| Media không được gửi | Đảm bảo đường dẫn file có thể truy cập từ bridge. Kiểm tra bridge có hỗ trợ media không. |
+|--------|----------|
+| Không hiển thị QR | Kiểm tra log GoClaw. Đảm bảo server kết nối được WhatsApp server (port 443, 5222). |
+| Quét QR nhưng không xác thực | Trạng thái xác thực có thể bị hỏng. Dùng nút "Re-authenticate" hoặc khởi động lại channel. |
+| Không nhận tin nhắn | Kiểm tra `dm_policy` và `group_policy`. Nếu là `pairing`, user/nhóm cần phê duyệt qua `goclaw pairing approve`. |
+| Không nhận media | Kiểm tra log GoClaw tìm "media download failed". Đảm bảo thư mục temp ghi được. Tối đa 20 MB mỗi file. |
+| Chỉ báo đang nhập bị kẹt | GoClaw tự hủy typing khi gửi trả lời. Nếu bị kẹt, kết nối WhatsApp có thể đã đứt — kiểm tra health channel. |
+| Tin nhắn nhóm bị bỏ qua | Kiểm tra `group_policy`. Nếu là `pairing`, nhóm cần phê duyệt. Nếu `require_mention` là true, @mention bot. |
+| "logged out" trong log | WhatsApp đã thu hồi phiên. Dùng nút "Re-authenticate" để quét QR mới. |
+| Lỗi `bridge_url` khi khởi động | `bridge_url` không còn được hỗ trợ. WhatsApp giờ chạy native — xóa `bridge_url` khỏi config/credentials. |
+
+## Di chuyển từ Bridge
+
+Nếu trước đây bạn dùng Baileys bridge (config `bridge_url`):
+
+1. Xóa `bridge_url` khỏi config hoặc credentials channel
+2. Xóa/dừng container bridge (không cần nữa)
+3. Xóa shared volume bridge (`wa_media`)
+4. Xác thực lại qua quét QR trong UI (trạng thái xác thực bridge cũ không tương thích)
+
+GoClaw sẽ phát hiện config `bridge_url` cũ và hiển thị lỗi di chuyển rõ ràng.
 
 ## Tiếp theo
 
@@ -146,4 +168,4 @@ isGroup := strings.HasSuffix(chatID, "@g.us")
 - [Larksuite](/channel-feishu) — Tích hợp Larksuite
 - [Browser Pairing](/channel-browser-pairing) — Luồng pairing
 
-<!-- goclaw-source: a47d7f9f | cập nhật: 2026-03-31 -->
+<!-- goclaw-source: whatsapp-direct | cập nhật: 2026-04-07 -->
