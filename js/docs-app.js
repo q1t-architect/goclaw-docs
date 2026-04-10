@@ -158,6 +158,7 @@ const DOC_MAP = {
   'channel-zalo-personal': docEntry('channels', 'zalo-personal', 'Zalo Personal', 'Channel Zalo Personal', 'Zalo Personal 频道'),
   'channel-slack': docEntry('channels', 'slack', 'Slack', 'Channel Slack', 'Slack 频道'),
   'channel-whatsapp': docEntry('channels', 'whatsapp', 'WhatsApp', 'Channel WhatsApp', 'WhatsApp 频道'),
+  'channel-pancake': docEntry('channels', 'pancake', 'Pancake', 'Channel Pancake', 'Pancake 频道'),
   'channel-websocket': docEntry('channels', 'websocket', 'WebSocket', 'Channel WebSocket', 'WebSocket 频道'),
   'channel-browser-pairing': docEntry('channels', 'browser-pairing', 'Browser Pairing', 'Browser Pairing', '浏览器配对'),
 
@@ -178,6 +179,7 @@ const DOC_MAP = {
   'media-generation': docEntry('advanced', 'media-generation', 'Media Generation', 'Tạo Media', '媒体生成'),
   'tts-voice': docEntry('advanced', 'tts-voice', 'TTS & Voice', 'Chuyển văn bản thành giọng nói', 'TTS 与语音'),
   'knowledge-graph': docEntry('advanced', 'knowledge-graph', 'Knowledge Graph', 'Knowledge Graph', '知识图谱'),
+  'knowledge-vault': docEntry('advanced', 'knowledge-vault', 'Knowledge Vault', 'Kho Tri Thức (Knowledge Vault)', '知识库 (Knowledge Vault)'),
   'caching': docEntry('advanced', 'caching', 'Caching', 'Caching', '缓存'),
   'browser-automation': docEntry('advanced', 'browser-automation', 'Browser Automation', 'Browser Automation', '浏览器自动化'),
   'extended-thinking': docEntry('advanced', 'extended-thinking', 'Extended Thinking', 'Extended Thinking', '扩展思考'),
@@ -223,6 +225,7 @@ const DOC_MAP = {
   'template-agents': docEntry('reference/templates', 'agents', 'AGENTS.md Template'),
   'template-soul': docEntry('reference/templates', 'soul', 'SOUL.md Template'),
   'template-identity': docEntry('reference/templates', 'identity', 'IDENTITY.md Template'),
+  'template-capabilities': docEntry('reference/templates', 'capabilities', 'CAPABILITIES.md Template'),
   'template-tools': docEntry('reference/templates', 'tools', 'TOOLS.md Template'),
   'template-user': docEntry('reference/templates', 'user', 'USER.md Template'),
   'template-user-predefined': docEntry('reference/templates', 'user-predefined', 'USER_PREDEFINED.md Template'),
@@ -256,9 +259,10 @@ function initMarked() {
 
   renderer.link = function ({ href, title, text }) {
     if (href && href.endsWith('.md') && !href.startsWith('http')) {
-      const name = href.replace(/^\.?\/?(?:docs\/)?(vi\/)?/, '').replace(/\.md$/, '');
+      // Strip leading ../, ./, section prefixes to get bare filename
+      const name = href.replace(/^(?:\.\.\/)*(?:\.\/)?/, '').replace(/\.md$/, '');
       const hashKey = Object.keys(DOC_MAP).find(
-        k => DOC_MAP[k].file.en.includes(name)
+        k => DOC_MAP[k].file.en.endsWith(name + '.md')
       );
       if (hashKey) href = '/' + hashKey;
     }

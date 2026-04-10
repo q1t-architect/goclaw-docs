@@ -65,6 +65,7 @@
 - [Zalo Personal](vi/channels/zalo-personal.md): Tích hợp tài khoản Zalo cá nhân không chính thức sử dụng giao thức được dịch ngược (zcago). Hỗ trợ DM và nhóm với kiểm soát truy cập hạn chế.
 - [Slack](vi/channels/slack.md): Tích hợp Slack qua Socket Mode (WebSocket). Hỗ trợ DM, @mention trong channel, trả lời theo thread, streaming, reaction, media, và message debouncing.
 - [WhatsApp](vi/channels/whatsapp.md): Tích hợp WhatsApp qua WebSocket bridge bên ngoài. GoClaw kết nối với dịch vụ bridge (ví dụ: whatsapp-web.js) để xử lý giao thức WhatsApp.
+- [Pancake](vi/channels/pancake.md): Proxy channel đa nền tảng thống nhất (pages.fm) — một API key cho Facebook, Zalo OA, Instagram, TikTok, WhatsApp và Line qua webhook.
 - [WebSocket](vi/channels/websocket.md): Giao tiếp RPC trực tiếp với GoClaw gateway qua WebSocket. Không cần nền tảng nhắn tin trung gian — lý tưởng cho client tuỳ chỉnh, web app, và kiểm thử.
 - [Browser Pairing](vi/channels/browser-pairing.md): Luồng xác thực bảo mật cho client WebSocket tuỳ chỉnh sử dụng mã pairing 8 ký tự. Lý tưởng cho web app riêng tư và desktop client cần xác minh danh tính thiết bị.
 
@@ -130,6 +131,7 @@
 - [AGENTS.md](vi/reference/templates/agents.md): File hướng dẫn vận hành mặc định được inject vào system prompt của mọi agent — bao gồm phong cách hội thoại, memory, hành vi group chat, và định dạng theo platform.
 - [SOUL.md](vi/reference/templates/soul.md): File personality — định nghĩa agent là ai, giọng điệu, quan điểm, ranh giới, và chuyên môn.
 - [IDENTITY.md](vi/reference/templates/identity.md): File có cấu trúc ngắn gọn nói với GoClaw (và chính agent) tên, bản chất, emoji, và avatar của nó.
+- [CAPABILITIES.md](vi/reference/templates/capabilities.md): Kiến thức domain, kỹ năng kỹ thuật và chuyên môn — những gì agent có thể LÀM.
 - [TOOLS.md](vi/reference/templates/tools.md): File ghi chú local cho chi tiết tool theo môi trường — tên camera, SSH host, TTS voice, biệt danh thiết bị.
 - [USER.md](vi/reference/templates/user.md): File profile per-user — ghi chú của agent về người dùng mà nó đang giúp đỡ.
 - [USER_PREDEFINED.md](vi/reference/templates/user-predefined.md): Quy tắc xử lý user ở cấp agent cho predefined agent — áp dụng cho tất cả người dùng.

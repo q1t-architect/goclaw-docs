@@ -70,6 +70,7 @@
 - [Zalo Personal](channels/zalo-personal.md)
 - [Slack](channels/slack.md)
 - [WhatsApp](channels/whatsapp.md)
+- [Pancake](channels/pancake.md)
 - [WebSocket](channels/websocket.md)
 - [Browser Pairing](channels/browser-pairing.md)
 
@@ -92,6 +93,7 @@
 - [Media Generation](advanced/media-generation.md)
 - [TTS & Voice](advanced/tts-voice.md)
 - [Knowledge Graph](advanced/knowledge-graph.md)
+- [Knowledge Vault](advanced/knowledge-vault.md)
 - [Caching](advanced/caching.md)
 - [Browser Automation](advanced/browser-automation.md)
 - [Extended Thinking](advanced/extended-thinking.md)
@@ -142,6 +144,7 @@
   - [AGENTS.md](reference/templates/agents.md)
   - [SOUL.md](reference/templates/soul.md)
   - [IDENTITY.md](reference/templates/identity.md)
+  - [CAPABILITIES.md](reference/templates/capabilities.md)
   - [TOOLS.md](reference/templates/tools.md)
   - [USER.md](reference/templates/user.md)
   - [USER_PREDEFINED.md](reference/templates/user-predefined.md)
@@ -173,16 +176,17 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for writing guidelines and bilingual proc
 ├── getting-started/        # Onboarding (6 pages)
 ├── core-concepts/          # Architecture & concepts (6 pages)
 ├── agents/                 # Agent configuration (8 pages)
-├── providers/              # LLM provider guides (23 pages)
-├── channels/               # Messaging channel setup (11 pages)
-├── agent-teams/            # Team collaboration (5 pages)
-├── advanced/               # Power-user features (21 pages)
+├── providers/              # LLM provider guides (24 pages)
+├── channels/               # Messaging channel setup (13 pages)
+├── agent-teams/            # Team collaboration (6 pages)
+├── advanced/               # Power-user features (24 pages)
 ├── deployment/             # Deploy & operate (7 pages)
 ├── recipes/                # Step-by-step tutorials (5 pages)
 ├── showcases/              # Gallery & examples (1 page)
-├── reference/              # API, CLI & config reference (15 pages)
+├── reference/              # API, CLI & config reference (16 pages)
 ├── troubleshooting/        # Debug & FAQ (7 pages)
-├── vi/                     # Vietnamese mirror (~96 pages)
+├── vi/                     # Vietnamese mirror
+├── zh/                     # Chinese mirror
 ├── archive/                # Old technical docs (DO NOT reference)
 └── images/dashboard/       # Dashboard screenshots
 ```

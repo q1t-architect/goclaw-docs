@@ -385,6 +385,75 @@ flowchart TD
 
 ---
 
+## Mode Prompt System
+
+Beyond the runtime steering layers, GoClaw applies **prompt-level steering** by varying which system prompt sections are included based on context. This reduces token cost for background tasks while keeping full guidance for user-facing interactions.
+
+### Prompt Modes
+
+| Mode | Who gets it | Sections included |
+|------|-------------|------------------|
+| `full` | Main user-facing agents | All sections — persona, skills, MCP, memory, spawn guidance, recency reinforcements |
+| `task` | Enterprise automation agents | Lean but capable — execution bias, skills search, memory slim, safety slim |
+| `minimal` | Subagents spawned via `spawn` | Reduced — tooling, safety, workspace, pinned skills only |
+| `none` | Identity-only (rare) | Identity line only, no tooling guidance |
+
+**3-layer resolution** (highest priority wins):
+
+1. **Runtime override** — caller passes explicit mode (e.g. subagent dispatch sets `minimal`)
+2. **Auto-detect** — heartbeat sessions → `minimal`; subagent/cron sessions → `task` (capped)
+3. **Agent config** — `prompt_mode` field in agent config
+4. **Default** — `full`
+
+```go
+// Priority: runtime > auto-detect > config > default
+func resolvePromptMode(runtimeOverride, sessionKey, configMode PromptMode) PromptMode
+```
+
+### Orchestration Modes
+
+Each agent is assigned an orchestration mode based on its capabilities. This determines which inter-agent tools are available and which sections appear in the system prompt:
+
+| Mode | How assigned | Tools available | Prompt section |
+|------|-------------|----------------|----------------|
+| `spawn` | Default (no links or team) | `spawn` only | Sub-Agent Spawning |
+| `delegate` | Agent has AgentLink targets | `spawn` + `delegate` | Delegation Targets |
+| `team` | Agent is in a team | `spawn` + `delegate` + `team_tasks` | Team Workspace + Team Members |
+
+Resolution priority: team > delegate > spawn.
+
+The `delegate` and `team_tasks` tools are hidden from the LLM unless the agent's mode explicitly enables them (`orchModeDenyTools`).
+
+### Prompt Cache Boundary
+
+For Anthropic providers, GoClaw splits the system prompt at a cache boundary marker:
+
+```
+<!-- GOCLAW_CACHE_BOUNDARY -->
+```
+
+Content above the marker = **stable** (agent config, persona, skills, safety — rarely changes). Anthropic applies `cache_control` to this block, so repeated calls reuse the cached prefix without re-tokenizing.
+
+Content below the marker = **dynamic** (current date/time, channel formatting hints, per-user context, extra prompt). This is regenerated on every turn.
+
+**Sections placed above the boundary:** Identity, Persona, Tooling, Safety, Skills, MCP Tools, Workspace, Team sections, Sandbox, User Identity, Project Context (stable files like AGENTS.md, AGENTS_CORE.md, CAPABILITIES.md).
+
+**Sections placed below the boundary:** Time, Channel Formatting Hints, Group Chat Reply Hint, Extra Prompt, Project Context (dynamic files like USER.md, BOOTSTRAP.md).
+
+This split is transparent to the model — it sees one continuous system prompt.
+
+### Provider-Specific Prompt Customizations
+
+Providers can contribute section overrides via `PromptContribution`:
+
+- **`SectionOverrides`** — replace specific sections by ID (e.g. override `execution_bias` for OpenAI)
+- **`StablePrefix`** — appended before the cache boundary (e.g. reasoning format instructions for GPT models)
+- **`DynamicSuffix`** — appended after the cache boundary
+
+GoClaw also applies **SOUL echo** for GPT/ChatGPT providers: a compact `## Style` + `## Vibe` extract from SOUL.md is appended in the recency zone to combat persona drift in long conversations. This is not applied to Claude (which follows early system prompt instructions reliably).
+
+---
+
 ## Common Issues
 
 | Issue | Cause | Fix |
@@ -400,7 +469,7 @@ flowchart TD
 ## What's Next
 
 - [Sandbox](sandbox.md) — isolate shell command execution for agents
-- [Agent Teams](../agent-teams/overview.md) — multi-agent coordination where Track and Hint are most active
+- [Agent Teams](../agent-teams/what-are-teams.md) — multi-agent coordination where Track and Hint are most active
 - [Scheduling & Cron](scheduling-cron.md) — how cron lane requests are routed through Track
 
-<!-- goclaw-source: 57754a5 | updated: 2026-03-23 -->
+<!-- goclaw-source: 1296cdbf | updated: 2026-04-11 -->
