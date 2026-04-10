@@ -159,6 +159,8 @@ A wrong protocol version or invalid token returns `ok: false` immediately.
 
 ### Chat
 
+> **Session ownership (v3):** All five `chat.*` methods enforce session ownership. Non-admin callers can only access sessions they own (matched by `user_id`). Attempting to access another user's session returns `UNAUTHORIZED`. Admins and gateway-owner connections bypass this check. This is implemented via the `requireSessionOwner` helper in `internal/gateway/methods/access.go`.
+
 | Method | Params | Description |
 |--------|--------|-------------|
 | `chat.send` | `{message, sessionKey?, agentId?}` | Send a message; response streams via `agent`/`chat` events |
@@ -343,6 +345,7 @@ A wrong protocol version or invalid token returns `ok: false` immediately.
 
 | Method | Params | Description |
 |--------|--------|-------------|
+| `whatsapp.qr.start` | `{instance_id}` | Start WhatsApp QR login flow for direct WhatsApp channel |
 | `zalo.personal.qr.start` | `{instance_id}` | Start Zalo Personal QR login flow |
 | `zalo.personal.contacts` | `{instance_id}` | Fetch Zalo friends and groups |
 
@@ -408,6 +411,8 @@ Emitted during agent runs. Check `payload.type`:
 | `agent_link.updated` | Delegation link updated |
 | `agent_link.deleted` | Delegation link deleted |
 | `tenant.access.revoked` | Tenant access revoked for a user |
+| `whatsapp.qr.code` | WhatsApp QR code generated |
+| `whatsapp.qr.done` | WhatsApp QR login completed |
 | `zalo.personal.qr.code` | Zalo QR code generated |
 | `zalo.personal.qr.done` | Zalo QR login completed |
 
@@ -492,4 +497,4 @@ ws.onmessage = (e) => {
 - [CLI Commands](/cli-commands) — pairing and session management from the terminal
 - [Glossary](/glossary) — Session, Lane, Compaction, and other key terms
 
-<!-- goclaw-source: 04dc34e3 | updated: 2026-04-02 -->
+<!-- goclaw-source: 050aafc9 | updated: 2026-04-09 -->

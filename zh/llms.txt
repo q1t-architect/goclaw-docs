@@ -65,6 +65,7 @@
 - [Zalo Personal](zh/channels/zalo-personal.md): 使用逆向工程协议（zcago）的非官方个人 Zalo 账号集成。支持 DM 和群组，采用严格访问控制。
 - [Slack](zh/channels/slack.md): 通过 Socket Mode（WebSocket）集成 Slack。支持 DM、channel @提及、线程回复、流式输出、表情回应、媒体和消息防抖。
 - [WhatsApp](zh/channels/whatsapp.md): 通过外部 WebSocket 桥接集成 WhatsApp。GoClaw 连接到处理 WhatsApp 协议的桥接服务（如 whatsapp-web.js）。
+- [Pancake](zh/channels/pancake.md): 统一多平台频道代理（pages.fm）—— 一个 API 密钥即可接入 Facebook、Zalo OA、Instagram、TikTok、WhatsApp 和 Line。
 - [WebSocket](zh/channels/websocket.md): 通过 WebSocket 与 GoClaw gateway 直接 RPC 通信。无需中间消息平台——非常适合自定义客户端、Web 应用和测试。
 - [Browser Pairing](zh/channels/browser-pairing.md): 使用 8 位配对码为自定义 WebSocket 客户端提供安全认证流程。适用于需要验证设备身份的私有 Web 应用和桌面客户端。
 
@@ -130,6 +131,7 @@
 - [AGENTS.md](zh/reference/templates/agents.md): 注入每个 agent 系统提示的默认操作指令——涵盖对话风格、记忆、群聊行为和平台格式。
 - [SOUL.md](zh/reference/templates/soul.md): 个性文件——定义你的 agent 是谁、其语气、观点、边界和专业知识。
 - [IDENTITY.md](zh/reference/templates/identity.md): 一个简短的结构化文件，告诉 GoClaw（以及 agent 自身）其名称、性质、emoji 和头像。
+- [CAPABILITIES.md](zh/reference/templates/capabilities.md): 领域知识、技术技能和专业专长——你的 agent 能做什么。
 - [TOOLS.md](zh/reference/templates/tools.md): 用于环境特定工具详情的本地笔记文件——摄像头名称、SSH 主机、TTS 声音、设备昵称。
 - [USER.md](zh/reference/templates/user.md): 按用户的档案文件——agent 关于它所服务的人类的笔记。
 - [USER_PREDEFINED.md](zh/reference/templates/user-predefined.md): 预定义 agent 的 agent 级用户处理规则——对所有用户共享。
